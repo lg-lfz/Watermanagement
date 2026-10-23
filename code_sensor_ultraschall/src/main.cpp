@@ -11,7 +11,7 @@ const char* mqtt_user = "broker";
 const char* mqtt_password = "smartLG26!";
 
 // ---------- Topics ---------- Hier entsprechend benennen
-const char* topic1 = "SmartLG/sensoren/agripv/bodenfeuchte";
+const char* topic1 = "SmartLG/sensoren/agripv/ultraschall";
 /*const char* topic2  = "SmartLG/sensoren/agripv/wert2";
 const char* topic3 = "SmartLG/sensoren/agripv/wert3";
 const char* topic4 = "SmartLG/sensoren/agripv/wert4";*/
@@ -82,46 +82,20 @@ void setup() {
   client.setServer(mqtt_server, mqtt_port);
 }
 
-void loop() {
+int echoPin = 7;//Kontrolle vom Arduino-Board!
+int trigPin = 6;//Kabelkontrolle, Kontrolle der Pins! 
+int entfernung;
 
-  if (!client.connected()) {
-    reconnect_mqtt();
-  }
+void setup(){
+  
+  Serial.begin(9600);
+}
 
-  client.loop();
-
-  static unsigned long lastMsg = 0;
-
-  if (millis() - lastMsg > 5000) {
-    lastMsg = millis();
-    float messwert = analogRead(A0);
-    float bodenfeuchte = (0.4651 * messwert) - 106.98;
-
-    /*float wert1 = 2;
-    float wert1 = 3;
-    float wert1 = 4;*/
-
-    // ---------- Wert1 Senden ----------
-    dtostrf(bodenfeuchte, 1, 2, buffer);
-    client.publish(topic1, buffer, true);
-
-    /* ----------Wert2 Senden----------
-    dtostrf(wert2, 1, 2, buffer);
-    client.publish(topic2, buffer, true);
-
-    // ---------- Wert3 Senden ----------
-    dtostrf(wert3, 1, 2, buffer);
-    client.publish(topic3, buffer, true);
-
-    // ---------- Wert4 Senden ----------
-    dtostrf(wert4, 1, 2, buffer);
-    client.publish(topic4, buffer, true);
-    */
-
-      Serial.print("Bodenfeuchte: ");
-    Serial.print(bodenfeuchte);
-    //Serial.print(" wert2 "); Serial.print(wert2);
-    //Serial.print(" wert3: "); Serial.print(wert3);
-    //Serial.print(" wert4: "); Serial.println(wert4);
-  }
+void loop(){
+  digitalWrite(trigPin,HIGH);
+  delayMicroseconds(1000);
+  digitalWrite(trigPin,LOW);
+  entfernung = pulseIn(echoPin,HIGH)/58.0;
+  Serial.print("Entfernung in cm: ");
+  Serial.println(entfernung);
 }
